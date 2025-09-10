@@ -21,10 +21,11 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedInterests, setSelectedInterests] = useState([]);
 
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm();
 
   const password = watch('password');
 
@@ -36,7 +37,12 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    const result = await registerUser(data);
+    // Include selected interests in the data
+    const formData = {
+      ...data,
+      interests: selectedInterests
+    };
+    const result = await registerUser(formData);
     if (result.success) {
       navigate('/dashboard');
     }
@@ -49,6 +55,19 @@ const Register = () => {
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleInterestChange = (interest, isChecked) => {
+    if (isChecked) {
+      setSelectedInterests(prev => [...prev, interest]);
+    } else {
+      setSelectedInterests(prev => prev.filter(item => item !== interest));
+    }
+    // Update form value for validation
+    const newInterests = isChecked 
+      ? [...selectedInterests, interest]
+      : selectedInterests.filter(item => item !== interest);
+    setValue('interests', newInterests);
   };
 
   return (
@@ -102,6 +121,14 @@ const Register = () => {
         </div>
         
         <form className="auth-stagger-container" onSubmit={handleSubmit(onSubmit)}>
+          {/* Hidden input for interests validation */}
+          <input
+            {...register('interests', {
+              validate: () => selectedInterests.length > 0 || 'Please select at least one interest'
+            })}
+            type="hidden"
+            value={selectedInterests}
+          />
           {/* Step 1: Basic Information */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -117,7 +144,7 @@ const Register = () => {
                   })}
                   type="text"
                   className="auth-form-input"
-                  placeholder="Enter your full name"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Full Name</label>
                 <User className="auth-input-icon h-5 w-5" />
@@ -140,7 +167,7 @@ const Register = () => {
                   })}
                   type="email"
                   className="auth-form-input"
-                  placeholder="Enter your email"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Email Address</label>
                 <Mail className="auth-input-icon h-5 w-5" />
@@ -163,7 +190,7 @@ const Register = () => {
                   })}
                   type="tel"
                   className="auth-form-input"
-                  placeholder="Enter your phone number"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Phone Number</label>
                 <Phone className="auth-input-icon h-5 w-5" />
@@ -199,7 +226,7 @@ const Register = () => {
                     })}
                     type="number"
                     className="auth-form-input"
-                    placeholder="Age"
+                    placeholder=" "
                   />
                   <label className="auth-floating-label">Age</label>
                   <Calendar className="auth-input-icon h-5 w-5" />
@@ -235,7 +262,7 @@ const Register = () => {
                   {...register('location', { required: 'Location is required' })}
                   type="text"
                   className="auth-form-input"
-                  placeholder="Enter your city/town"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Location</label>
                 <MapPin className="auth-input-icon h-5 w-5" />
@@ -330,21 +357,34 @@ const Register = () => {
 
               {/* Academic Interests */}
               <div className="auth-form-group auth-stagger-item">
-                <select
-                  {...register('interests', { required: 'Please select at least one interest' })}
-                  multiple
-                  className="auth-select"
-                  style={{ minHeight: '4rem' }}
-                >
-                  {interestOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
+                <label className="block text-sm font-medium text-gray-800 mb-3">
+                  Academic Interests (select multiple)
+                </label>
+                <div className="grid grid-cols-2 gap-3 p-4 bg-white bg-opacity-60 rounded-lg">
+                  {interestOptions.map((interest) => (
+                    <div key={interest} className="flex items-center">
+                      <div className="auth-checkbox">
+                        <input
+                          id={`interest-${interest}`}
+                          type="checkbox"
+                          value={interest}
+                          checked={selectedInterests.includes(interest)}
+                          onChange={(e) => handleInterestChange(interest, e.target.checked)}
+                        />
+                        <div className="auth-checkbox-custom"></div>
+                      </div>
+                      <label 
+                        htmlFor={`interest-${interest}`} 
+                        className="text-sm text-gray-800 cursor-pointer font-medium ml-1"
+                      >
+                        {interest}
+                      </label>
+                    </div>
                   ))}
-                </select>
-                <label className="auth-floating-label">Academic Interests (hold Ctrl to select multiple)</label>
-                <BookOpen className="auth-input-icon h-5 w-5" />
-                {errors.interests && (
+                </div>
+                {(errors.interests || selectedInterests.length === 0) && currentStep === 3 && (
                   <div className="auth-error">
-                    <span>{errors.interests.message}</span>
+                    <span>{errors.interests?.message || 'Please select at least one interest'}</span>
                   </div>
                 )}
               </div>
@@ -361,7 +401,7 @@ const Register = () => {
                   })}
                   type={showPassword ? 'text' : 'password'}
                   className="auth-form-input"
-                  placeholder="Create a password"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Password</label>
                 <Lock className="auth-input-icon h-5 w-5" />
@@ -392,7 +432,7 @@ const Register = () => {
                   })}
                   type="password"
                   className="auth-form-input"
-                  placeholder="Confirm your password"
+                  placeholder=" "
                 />
                 <label className="auth-floating-label">Confirm Password</label>
                 <Lock className="auth-input-icon h-5 w-5" />
@@ -407,24 +447,30 @@ const Register = () => {
               <div className="flex items-start mb-6 auth-stagger-item">
                 <div className="auth-checkbox">
                   <input
+                    {...register('terms', {
+                      required: 'You must agree to the terms and conditions'
+                    })}
                     id="terms"
-                    name="terms"
                     type="checkbox"
-                    required
                   />
                   <div className="auth-checkbox-custom"></div>
                 </div>
-                <label htmlFor="terms" className="text-sm text-gray-700">
+                <label htmlFor="terms" className="text-sm text-gray-800 font-medium ml-2">
                   I agree to the{' '}
-                  <Link to="/terms" className="text-blue-600 hover:text-blue-500 font-medium">
+                  <Link to="/terms" className="text-blue-600 hover:text-blue-500 font-semibold underline">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link to="/privacy" className="text-blue-600 hover:text-blue-500 font-medium">
+                  <Link to="/privacy" className="text-blue-600 hover:text-blue-500 font-semibold underline">
                     Privacy Policy
                   </Link>
                 </label>
               </div>
+              {errors.terms && (
+                <div className="auth-error mb-4">
+                  <span>{errors.terms.message}</span>
+                </div>
+              )}
 
               <div className="flex space-x-4">
                 <button
