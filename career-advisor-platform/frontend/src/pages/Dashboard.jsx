@@ -8,7 +8,10 @@ import {
   Target, 
   TrendingUp,
   Calendar,
-  Award
+  Award,
+  ClipboardList,
+  Sparkles,
+  School
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -77,46 +80,18 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 animate-fadeInUp">Dashboard</h1>
-        </div>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 animate-fadeIn">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Cards */}
-            <Link
-              to="/assessment"
-              className="glass p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col items-center animate-fadeInUp focus-visible:outline-2 focus-visible:outline-blue-600"
-            >
-              <ClipboardList className="h-10 w-10 text-blue-600 mb-4" />
-              <span className="text-lg font-semibold text-gray-900">Take Assessment</span>
-            </Link>
-            <Link
-              to="/recommendations"
-              className="glass p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col items-center animate-fadeInUp focus-visible:outline-2 focus-visible:outline-purple-600"
-            >
-              <Sparkles className="h-10 w-10 text-purple-600 mb-4" />
-              <span className="text-lg font-semibold text-gray-900">View Recommendations</span>
-            </Link>
-            <Link
-              to="/colleges"
-              className="glass p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col items-center animate-fadeInUp focus-visible:outline-2 focus-visible:outline-green-600"
-            >
-              <School className="h-10 w-10 text-green-600 mb-4" />
-              <span className="text-lg font-semibold text-gray-900">Browse Colleges</span>
-            </Link>
-            <Link
-              to="/courses"
-              className="glass p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col items-center animate-fadeInUp focus-visible:outline-2 focus-visible:outline-yellow-500"
-            >
-              <BookOpen className="h-10 w-10 text-yellow-500 mb-4" />
-              <span className="text-lg font-semibold text-gray-900">Browse Courses</span>
-            </Link>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 animate-fadeInUp">
+            Welcome back, {user?.name || 'Student'}!
+          </h1>
+          <p className="text-lg text-gray-600">
+            Continue your personalized career journey
+          </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className={`${stat.color} p-6 rounded-lg`}>
+            <div key={index} className={`${stat.color} p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.title}</p>
@@ -136,7 +111,7 @@ const Dashboard = () => {
               <Link
                 key={index}
                 to={action.link}
-                className={`${action.color} p-6 rounded-lg transition-colors`}
+                className={`${action.color} p-6 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105 transform`}
               >
                 <div className="mb-4">{action.icon}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -151,7 +126,7 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Profile Completion */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Profile Completion
             </h3>
@@ -173,7 +148,7 @@ const Dashboard = () => {
             </div>
             <Link
               to="/profile"
-              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
             >
               Complete Profile
               <User className="ml-1 h-4 w-4" />
@@ -181,7 +156,7 @@ const Dashboard = () => {
           </div>
 
           {/* Upcoming Deadlines */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Upcoming Deadlines
             </h3>
@@ -216,7 +191,7 @@ const Dashboard = () => {
             </div>
             <Link
               to="/timeline"
-              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
             >
               View All Deadlines
               <Calendar className="ml-1 h-4 w-4" />
@@ -226,13 +201,13 @@ const Dashboard = () => {
 
         {/* Recommendations Preview */}
         {user?.assessmentResults?.recommendations && (
-          <div className="mt-8 bg-white p-6 rounded-lg shadow">
+          <div className="mt-8 bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Your Recommendations
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {user.assessmentResults.recommendations.slice(0, 3).map((rec, index) => (
-                <div key={index} className="border rounded-lg p-4">
+                <div key={index} className="border rounded-lg p-4 hover:border-blue-300 transition-colors">
                   <h4 className="font-medium text-gray-900">{rec.course}</h4>
                   <p className="text-sm text-gray-600 mt-1">{rec.college}</p>
                   <div className="mt-2">
@@ -245,7 +220,7 @@ const Dashboard = () => {
             </div>
             <Link
               to="/recommendations"
-              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
             >
               View All Recommendations
               <Target className="ml-1 h-4 w-4" />
